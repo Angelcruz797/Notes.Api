@@ -1,8 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+using Notes.Api.Services;
+using Notes.Api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IFilesService, FilesService>();
 
 var app = builder.Build();
 
@@ -10,9 +20,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
+app.MapControllers();
 
 var summaries = new[]
 {
