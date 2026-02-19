@@ -20,16 +20,19 @@ public class FilesService(AppDbContext context) : IFilesService
         }).ToListAsync();
     }
 
-    public async Task<List<FileResponse?>> GetFileByGuidAsync(Guid id)
+    public async Task<FileResponse?> GetFileByGuidAsync(Guid id)
     {
-        return await context.Files.Where(c => c.Id == id).Select(c=>new FileResponse
-        {
-         Id=c.Id,
-         FileName = c.FileName,
-         Content = c.Content,
-         CreateDate = c.CreateDate,
-         LastUpdatedDate = c.LastUpdatedDate,
-        }).ToListAsync();
+        var result =await context.Files
+            .Where(c => c.Id == id)
+            .Select(c=>new FileResponse
+            {
+                Id=c.Id,
+                FileName = c.FileName,
+                Content = c.Content,
+                CreateDate = c.CreateDate,
+                LastUpdatedDate = c.LastUpdatedDate,
+            }).FirstOrDefaultAsync();
+        return result;
     }
     
     public async Task<FileResponse>  AddFileAsync(AddFileResponse file)
