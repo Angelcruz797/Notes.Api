@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Notes.Api.Services;
@@ -10,8 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+Env.Load();
+
+var connectionString = Environment.GetEnvironmentVariable("NOTES_DB_CONNECTION")
+                       ?? throw new InvalidOperationException("Connection string not set");
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IFilesService, FilesService>();
 
 var app = builder.Build();
