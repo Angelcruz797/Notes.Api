@@ -49,6 +49,7 @@ public class FilesService(AppDbContext context) : IFilesService
             Content = newCharacter.Content,
             FileName = newCharacter.FileName,
             CreateDate = newCharacter.CreateDate,
+            LastUpdatedDate = newCharacter.LastUpdatedDate,
         });
     }
     public async Task<bool> UpdateFileAsync(Guid id, UpdateFileResponse file)
