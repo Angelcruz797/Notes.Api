@@ -1,43 +1,75 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Notes.Api.Data;
+using Notes.Api.Dto;
 using Notes.Api.Models;
 
 namespace Notes.Api.Services;
 
-public class FilesService : IFilesService
+public class FilesService(AppDbContext context) : IFilesService
 {
-    private static List<Files> files = new List<Files>
+    public async Task<List<FileResponse>> GetAllFilesAsync()
     {
-        new Models.Files
+        return await context.Files.Select(c=> new FileResponse
         {
-            Id = 1, 
-            FileName = "file1", 
-            Content = "{\"content\":\"content\"}",
-            CreateDate = DateOnly.FromDateTime(DateTime.Now)
-        },
-        new Models.Files
-        {
-            Id = 2, 
-            FileName = "file2", 
-            Content = "{\"content\":\"content\"}",
-            CreateDate = DateOnly.FromDateTime(DateTime.Now)
-        },
-    };
-    
-    public async Task<List<Files>> GetAllFilesAsync()
-        =>await Task.FromResult(files);
+            Id = c.Id,
+            FileName = c.FileName,
+            Content = c.Content,
+            CreateDate = c.CreateDate,
+            LastUpdatedDate = c.LastUpdatedDate,
+        }).ToListAsync();
+    }
 
-    public async Task<Files?> GetFileByIdAsync(int id)
-        => await Task.FromResult(files.Find(f => f.Id == id));
+    public async Task<List<FileResponse?>> GetFileByGuidAsync(Guid id)
+    {
+        return await context.Files.Where(c => c.Id == id).Select(c=>new FileResponse
+        {
+         Id=c.Id,
+         FileName = c.FileName,
+         Content = c.Content,
+         CreateDate = c.CreateDate,
+         LastUpdatedDate = c.LastUpdatedDate,
+        }).ToListAsync();
+    }
     
-    public Task<Files>  AddFileAsync(Files file)
+    public async Task<FileResponse>  AddFileAsync(AddFileResponse file)
     {
-        throw new NotImplementedException();
+        var newCharacter = new Files
+        {
+            UserId = 1,
+            FileName = file.FileName,
+            Content = "",
+        };
+        context.Files.Add(newCharacter);
+        await context.SaveChangesAsync();
+
+        return (new FileResponse
+        {
+            Id = newCharacter.Id,
+            Content = newCharacter.Content,
+            FileName = newCharacter.FileName,
+            CreateDate = newCharacter.CreateDate,
+        });
     }
-    public Task<bool>  UpdateFileAsync(int id, Files file)
+    public async Task<bool> UpdateFileAsync(Guid id, UpdateFileResponse file)
     {
-        throw new NotImplementedException();
+        var currentFile = await context.Files.FindAsync(id);
+
+        if (currentFile == null) return false;
+        currentFile.FileName = file.FileName;
+        currentFile.Content = file.Content;
+        currentFile.LastUpdatedDate = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        return true;
     }
-    public Task<bool>  DeleteFileAsync(int id)
+
+    public async Task<bool> DeleteFileAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var currentFile = await context.Files.FindAsync(id);
+        if (currentFile == null) return false;
+        context.Files.Remove(currentFile);
+        await context.SaveChangesAsync();
+        return true;
     }
 }

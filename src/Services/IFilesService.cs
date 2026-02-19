@@ -1,12 +1,13 @@
+using Notes.Api.Dto;
 using Notes.Api.Models;
 
 namespace Notes.Api.Services;
 
 public interface IFilesService
 {
-    Task<List<Files>>  GetAllFilesAsync();
-    Task<Files?>  GetFileByIdAsync(int id);
-    Task<Files>  AddFileAsync(Files file);
-    Task<bool>  UpdateFileAsync(int id, Files file);
-    Task<bool>  DeleteFileAsync(int id);
+    Task<List<FileResponse>>  GetAllFilesAsync();
+    Task<List<FileResponse?>> GetFileByGuidAsync(Guid id);
+    Task<FileResponse> AddFileAsync(AddFileResponse file);
+    Task<bool>  UpdateFileAsync(Guid id, UpdateFileResponse file);
+    Task<bool>  DeleteFileAsync(Guid id);
 }
