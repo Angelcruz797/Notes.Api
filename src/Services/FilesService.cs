@@ -15,6 +15,7 @@ public class FilesService(AppDbContext context) : IFilesService
             Id = c.Id,
             FileName = c.FileName,
             Content = c.Content,
+            FileType = c.FileType,
             CreateDate = c.CreateDate,
             LastUpdatedDate = c.LastUpdatedDate,
         }).ToListAsync();
@@ -29,6 +30,7 @@ public class FilesService(AppDbContext context) : IFilesService
                 Id=c.Id,
                 FileName = c.FileName,
                 Content = c.Content,
+                FileType = c.FileType,
                 CreateDate = c.CreateDate,
                 LastUpdatedDate = c.LastUpdatedDate,
             }).FirstOrDefaultAsync();
@@ -41,6 +43,7 @@ public class FilesService(AppDbContext context) : IFilesService
         {
             UserId = 1,
             FileName = file.FileName,
+            FileType = file.FileType,
             Content = "",
         };
         context.Files.Add(newCharacter);
@@ -51,6 +54,7 @@ public class FilesService(AppDbContext context) : IFilesService
             Id = newCharacter.Id,
             Content = newCharacter.Content,
             FileName = newCharacter.FileName,
+            FileType = newCharacter.FileType,
             CreateDate = newCharacter.CreateDate,
             LastUpdatedDate = newCharacter.LastUpdatedDate,
         });
@@ -62,6 +66,7 @@ public class FilesService(AppDbContext context) : IFilesService
         if (currentFile == null) return false;
         currentFile.FileName = file.FileName;
         currentFile.Content = file.Content;
+        currentFile.FileType = file.FileType;
         currentFile.LastUpdatedDate = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
