@@ -6,6 +6,7 @@ public class Files
     public int UserId { get; set; } 
     public string FileName { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
+    public string FileType { get; set; } = string.Empty;
     public DateTime CreateDate { get; set; } = DateTime.UtcNow;
     public DateTime LastUpdatedDate { get; set; } = DateTime.UtcNow;
 }
