@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Notes.Api.Dto;
-using Notes.Api.Models;
 using Notes.Api.Services;
 
 namespace Notes.Api.Controllers;
@@ -10,11 +9,11 @@ namespace Notes.Api.Controllers;
 public class FilesController(IFilesService service): ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<FileResponse>>> GetAllFiles()
-        => await service.GetAllFilesAsync();
+    public async Task<IActionResult> GetAllFiles()
+        => Ok(await service.GetAllFilesAsync());
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<FileResponse?>> GetFileByGuid(string id)
+    public async Task<IActionResult> GetFileByGuid(string id)
     {
         if (!Guid.TryParse(id,out var guidId))
         {
@@ -25,11 +24,11 @@ public class FilesController(IFilesService service): ControllerBase
         {
             return NotFound(new { message = "File not found" });
         }
-        return file;
+        return Ok(file);
     }
 
     [HttpPost]
-    public async Task<ActionResult<FileResponse>> AddFile(AddFileResponse file)
+    public async Task<IActionResult> AddFile(AddFileResponse file)
     {
         if (file.FileName == string.Empty || file.FileType == string.Empty)
         {
@@ -37,7 +36,7 @@ public class FilesController(IFilesService service): ControllerBase
         }
         if (file.FileType == "Draw" || file.FileType == "Text")
         {
-            return  await service.AddFileAsync(file);
+            return Ok(await service.AddFileAsync(file));
         }
         else
         {
@@ -46,7 +45,7 @@ public class FilesController(IFilesService service): ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<bool>> UpdateFile(string id, UpdateFileResponse file)
+    public async Task<IActionResult> UpdateFile(string id, UpdateFileResponse file)
     {
         if (file.FileType == string.Empty ||file.FileName == string.Empty)
         {
@@ -58,7 +57,7 @@ public class FilesController(IFilesService service): ControllerBase
         }
         if (file.FileType == "Draw" || file.FileType == "Text")
         {
-            return await service.UpdateFileAsync(guidId, file);
+            return Ok(await service.UpdateFileAsync(guidId, file));
         }
         else
         {
@@ -67,12 +66,12 @@ public class FilesController(IFilesService service): ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool>> DeleteFile(string id)
+    public async Task<IActionResult> DeleteFile(string id)
     {
         if (!Guid.TryParse(id,out var guidId))
         {
             return BadRequest(new  { message = "File not found" });
         }
-        return await service.DeleteFileAsync(guidId);
+        return Ok(await service.DeleteFileAsync(guidId));
     }
 }
