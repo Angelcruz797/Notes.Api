@@ -1,5 +1,6 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using Notes.Api.Configuration;
 using Scalar.AspNetCore;
 using Notes.Api.Services;
 using Notes.Api.Data;
@@ -16,6 +17,21 @@ Env.Load();
 var connectionString = Environment.GetEnvironmentVariable("NOTES_DB_CONNECTION")
                        ?? throw new InvalidOperationException("Connection string not set");
 
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(General.CorsPolicy, policy =>
+    {
+        policy.WithOrigins(allowedOrigins!)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -30,6 +46,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+
+
+app.UseCors(General.CorsPolicy);
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
