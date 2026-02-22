@@ -17,7 +17,7 @@ public class FilesController(IFilesService service): ControllerBase
     {
         if (!Guid.TryParse(id,out var guidId))
         {
-            return BadRequest(new  { message = "File not found" });
+            return BadRequest(new  { message = "Invalid guid" });
         }
         var file = await service.GetFileByGuidAsync(guidId);
         if (file is null)
@@ -53,7 +53,7 @@ public class FilesController(IFilesService service): ControllerBase
         }
         if (!Guid.TryParse(id,out var guidId))
         {
-            return BadRequest(new  { message = "File id not found" });
+            return BadRequest(new  { message = "Invalid guid" });
         }
         if (file.FileType == "Draw" || file.FileType == "Text")
         {
@@ -70,7 +70,7 @@ public class FilesController(IFilesService service): ControllerBase
     {
         if (!Guid.TryParse(id,out var guidId))
         {
-            return BadRequest(new  { message = "File not found" });
+            return BadRequest(new  { message = "Invalid guid" });
         }
         return Ok(await service.DeleteFileAsync(guidId));
     }
