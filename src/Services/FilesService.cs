@@ -1,84 +1,38 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Notes.Api.Data;
 using Notes.Api.Dto;
-using Notes.Api.Models;
+using Notes.Api.Repository;
 
 namespace Notes.Api.Services;
 
-public class FilesService(AppDbContext context) : IFilesService
+public class FilesService : IFilesService
 {
+    private readonly IFilesRepository _repository;
+    
+    public FilesService(IFilesRepository repository)
+    {
+        _repository = repository;
+    }
     public async Task<List<FileResponse>> GetAllFilesAsync()
     {
-        return await context.Files.Select(c=> new FileResponse
-        {
-            Id = c.Id,
-            FileName = c.FileName,
-            Content = c.Content,
-            FileType = c.FileType,
-            CreateDate = c.CreateDate,
-            LastUpdatedDate = c.LastUpdatedDate,
-        }).ToListAsync();
+        return await _repository.GetAllFiles();
     }
 
     public async Task<FileResponse?> GetFileByGuidAsync(Guid id)
     {
-        var result =await context.Files
-            .Where(c => c.Id == id)
-            .Select(c=>new FileResponse
-            {
-                Id=c.Id,
-                FileName = c.FileName,
-                Content = c.Content,
-                FileType = c.FileType,
-                CreateDate = c.CreateDate,
-                LastUpdatedDate = c.LastUpdatedDate,
-            }).FirstOrDefaultAsync();
+        var result = await _repository.GetFileById(id);
         return result;
     }
     
     public async Task<FileResponse>  AddFileAsync(AddFileResponse file)
     {
-        var newCharacter = new Files
-        {
-            UserId = 1,
-            FileName = file.FileName,
-            FileType = file.FileType,
-            Content = "",
-        };
-        context.Files.Add(newCharacter);
-        await context.SaveChangesAsync();
-
-        return (new FileResponse
-        {
-            Id = newCharacter.Id,
-            Content = newCharacter.Content,
-            FileName = newCharacter.FileName,
-            FileType = newCharacter.FileType,
-            CreateDate = newCharacter.CreateDate,
-            LastUpdatedDate = newCharacter.LastUpdatedDate,
-        });
+        return  await _repository.AddFile(file);
     }
     public async Task<bool> UpdateFileAsync(Guid id, UpdateFileResponse file)
     {
-        var currentFile = await context.Files.FindAsync(id);
-
-        if (currentFile == null) return false;
-        currentFile.FileName = file.FileName;
-        currentFile.Content = file.Content;
-        currentFile.FileType = file.FileType;
-        currentFile.LastUpdatedDate = DateTime.UtcNow;
-
-        await context.SaveChangesAsync();
-        return true;
+        return await _repository.UpdateFile(id,file);
     }
 
     public async Task<bool> DeleteFileAsync(Guid id)
     {
-        var currentFile = await context.Files.FindAsync(id);
-        if (currentFile == null) return false;
-        context.Files.Remove(currentFile);
-        await context.SaveChangesAsync();
-        return true;
+        return  await _repository.DeleteFile(id);
     }
 }

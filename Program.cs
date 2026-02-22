@@ -4,6 +4,7 @@ using Notes.Api.Configuration;
 using Scalar.AspNetCore;
 using Notes.Api.Services;
 using Notes.Api.Data;
+using Notes.Api.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +36,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
 builder.Services.AddScoped<IFilesService, FilesService>();
+builder.Services.AddScoped<IFilesRepository, FilesRepository>();
 
 var app = builder.Build();
 
