@@ -3,7 +3,7 @@ namespace Notes.Api.Models;
 public class Files
 {
     public Guid Id { get; set; }
-    public int UserId { get; set; } 
+    public Guid UserId { get; set; }
     public string FileName { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
     public string FileType { get; set; } = string.Empty;

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Notes.Api.Data;
 using Notes.Api.Dto;
+using Notes.Api.Handler;
 using Notes.Api.Models;
 
 namespace Notes.Api.Repository;
@@ -8,14 +9,18 @@ namespace Notes.Api.Repository;
 public class FilesRepository: IFilesRepository
 {
     private readonly AppDbContext _context;
-    public FilesRepository(AppDbContext context)
+    private readonly Guid _userId;
+    public FilesRepository(AppDbContext context, IJwtHandler jwtHandler)
     {
         _context =  context;
+        _userId = jwtHandler.GetIdByToken();
     }
 
     public async Task<List<FileResponse>> GetAllFiles()
     {
-        return await _context.Files.Select(c=> new FileResponse
+        return await _context.Files
+            .Where(c=>c.UserId == _userId)
+            .Select(c=> new FileResponse
         {
             Id = c.Id,
             FileName = c.FileName,
@@ -28,7 +33,7 @@ public class FilesRepository: IFilesRepository
     public async Task<FileResponse?> GetFileById(Guid id)
     {
         return await _context.Files
-            .Where(c => c.Id == id)
+            .Where(c => c.Id == id && c.UserId == _userId)
             .Select(c=>new FileResponse
             {
                 Id=c.Id,
@@ -44,7 +49,7 @@ public class FilesRepository: IFilesRepository
     {
         var newCharacter = new Files
         {
-            UserId = 1,
+            UserId = _userId,
             FileName = file.FileName,
             FileType = file.FileType,
             Content = "",

@@ -1,9 +1,13 @@
+using System.Text;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Notes.Api.Configuration;
 using Scalar.AspNetCore;
 using Notes.Api.Services;
 using Notes.Api.Data;
+using Notes.Api.Handler;
 using Notes.Api.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +43,30 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IFilesRepository, FilesRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IJwtHandler, JwtHandler>();
+
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+                ?? throw new InvalidOperationException("JWT_SECRET is not set");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -53,5 +81,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(General.CorsPolicy);
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();

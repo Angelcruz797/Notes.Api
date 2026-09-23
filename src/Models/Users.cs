@@ -2,7 +2,7 @@ namespace Notes.Api.Models;
 
 public class Users
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
