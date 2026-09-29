@@ -9,7 +9,7 @@ namespace Notes.Api.Repository;
 public class AuthRepository(AppDbContext context, IJwtHandler jwtHandler) : IAuthRepository
 {
     public async Task<bool> UserExists(string userName, string email)
-        => await context.Users.AnyAsync(u => u.UserName == userName || u.Email == email);
+        => await context.Users.AnyAsync(u => u.UserName == userName.ToLower() || u.Email == email.ToLower());
 
     public async Task<AuthResponse> CreateUser(RegisterRequest request)
     {
@@ -17,8 +17,8 @@ public class AuthRepository(AppDbContext context, IJwtHandler jwtHandler) : IAut
         {
             Name = request.Name,
             LastName = request.LastName,
-            UserName = request.UserName,
-            Email = request.Email,
+            UserName = request.UserName.ToLower(),
+            Email = request.Email.ToLower(),
             Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
         };
         
@@ -27,15 +27,15 @@ public class AuthRepository(AppDbContext context, IJwtHandler jwtHandler) : IAut
         return new AuthResponse
         {
             Token = jwtHandler.GenerateToken(user),
-            UserName = user.UserName,
-            Email = user.Email,
+            UserName = user.UserName.ToLower(),
+            Email = user.Email.ToLower(),
         };
     }
 
 
     public async Task<AuthResponse> Login(LoginRequest request)
     {
-        var user = await GetUserByUserName(request.UserName);
+        var user = await GetUserByUserName(request.UserName.ToLower());
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             return null;
 
@@ -48,6 +48,6 @@ public class AuthRepository(AppDbContext context, IJwtHandler jwtHandler) : IAut
     }
     
     private async Task<Users?> GetUserByUserName(string userName)
-        => await context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+        => await context.Users.FirstOrDefaultAsync(u => u.UserName == userName.ToLower());
     
 }
