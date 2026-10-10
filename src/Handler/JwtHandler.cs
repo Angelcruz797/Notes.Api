@@ -43,7 +43,7 @@ public class JwtHandler (IConfiguration configuration, IHttpContextAccessor http
 
     public Guid GetIdByToken()
     {
-        var claim = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name);
+        var claim = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
         
         if (claim is null)
             throw new UnreachableException("Unreachable token");
