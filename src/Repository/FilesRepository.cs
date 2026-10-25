@@ -70,7 +70,9 @@ public class FilesRepository: IFilesRepository
 
     public async Task<bool> UpdateFile(Guid id, UpdateFileResponse file)
     {
-        var currentFile = await _context.Files.FindAsync(id);
+        var currentFile = await _context.Files
+            .Where(c=>c.Id == id && c.UserId == _userId)
+            .SingleOrDefaultAsync();
 
         if (currentFile == null) return false;
         currentFile.FileName = file.FileName;
@@ -84,7 +86,9 @@ public class FilesRepository: IFilesRepository
 
     public async Task<bool> DeleteFile(Guid id)
     {
-        var currentFile = await _context.Files.FindAsync(id);
+        var currentFile = await _context.Files
+            .Where(c=>c.Id == id && c.UserId == _userId)
+            .SingleOrDefaultAsync();
         if (currentFile == null) return false;
         _context.Files.Remove(currentFile);
         await _context.SaveChangesAsync();
