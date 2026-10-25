@@ -1,13 +1,20 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notes.Api.Dto;
 using Notes.Api.Services;
 
 namespace Notes.Api.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class FilesController(IFilesService service): ControllerBase
 {
+    private Guid GetUserID()
+    {
+        return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+    }
     [HttpGet]
     public async Task<IActionResult> GetAllFiles()
         => Ok(await service.GetAllFilesAsync());
@@ -15,6 +22,11 @@ public class FilesController(IFilesService service): ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetFileByGuid(string id)
     {
+        Guid UserId = GetUserID();
+        if (UserId == Guid.Empty)
+        {
+            return NotFound(new { message = "User not found" });
+        }
         if (!Guid.TryParse(id,out var guidId))
         {
             return BadRequest(new  { message = "Invalid guid" });
