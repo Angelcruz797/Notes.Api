@@ -7,6 +7,7 @@ using Notes.Api.Configuration;
 using Scalar.AspNetCore;
 using Notes.Api.Services;
 using Notes.Api.Data;
+using Notes.Api.Extensions;
 using Notes.Api.Handler;
 using Notes.Api.Repository;
 
@@ -80,6 +81,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseCors(General.CorsPolicy);
+app.ApplyMigrations();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
