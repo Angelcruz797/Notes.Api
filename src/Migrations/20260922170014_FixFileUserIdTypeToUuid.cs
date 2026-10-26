@@ -11,25 +11,27 @@ namespace Notes.Api.src.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<Guid>(
+            migrationBuilder.DropColumn(name: "UserId", table: "Files");
+
+            migrationBuilder.AddColumn<Guid>(
                 name: "UserId",
                 table: "Files",
                 type: "uuid",
                 nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer");
+                defaultValue: Guid.Empty);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<int>(
+            migrationBuilder.DropColumn(name: "UserId", table: "Files");
+
+            migrationBuilder.AddColumn<int>(
                 name: "UserId",
                 table: "Files",
                 type: "integer",
                 nullable: false,
-                oldClrType: typeof(Guid),
-                oldType: "uuid");
+                defaultValue: 0);
         }
     }
 }
