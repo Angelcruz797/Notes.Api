@@ -13,5 +13,5 @@ RUN dotnet publish "./Notes.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Notes.Api.dll"]
