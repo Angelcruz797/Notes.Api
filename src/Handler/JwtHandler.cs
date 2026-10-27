@@ -13,8 +13,8 @@ public class JwtHandler (IConfiguration configuration, IHttpContextAccessor http
 {
     public string GenerateToken(Users user)
     {
-        var secret = Environment.GetEnvironmentVariable("JWT_SECRET")
-                     ?? throw new InvalidOperationException("JWT_SECRET is not set");
+        var secret = configuration["Jwt:Secret"]
+                     ?? throw new InvalidOperationException("Jwt:Secret is not set");
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
